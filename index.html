@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gift Search</title>
+    <style>
+        :root {
+            --primary: #0088cc;
+            --primary-dark: #006699;
+            --background: #f5f5f5;
+            --card-bg: #ffffff;
+            --text: #333333;
+            --text-light: #777777;
+            --border: #e0e0e0;
+            --success: #4caf50;
+            --error: #f44336;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', sans-serif;
+            background-color: var(--background);
+            color: var(--text);
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        h1 {
+            color: var(--primary);
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .subtitle {
+            color: var(--text-light);
+            font-size: 1.1rem;
+        }
+
+        .control-panel {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            margin-bottom: 30px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            align-items: flex-end;
+        }
+
+        .form-group {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--text);
+        }
+
+        select,
+        input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border 0.3s;
+        }
+
+        select:focus,
+        input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .btn {
+            padding: 12px 24px;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .btn-secondary {
+            background-color: #f0f0f0;
+            color: var(--text);
+        }
+
+        .btn-secondary:hover {
+            background-color: #e0e0e0;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            padding: 15px 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .stat-item {
+            text-align: center;
+            flex: 1;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: var(--text-light);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px 0;
+            display: none;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(0, 136, 204, 0.2);
+            border-radius: 50%;
+            border-top-color: var(--primary);
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .gift-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .gift-card {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .gift-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+        }
+
+        .gift-content {
+            padding: 20px;
+        }
+
+        .gift-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: var(--text);
+        }
+
+        .gift-model {
+            display: inline-block;
+            background-color: var(--primary);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            margin-bottom: 10px;
+        }
+
+        .gift-owner {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .gift-owner:hover {
+            text-decoration: underline;
+        }
+
+        .owner-avatar {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            margin-right: 8px;
+            background-color: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            font-weight: bold;
+        }
+
+        .gift-properties {
+            margin-top: 15px;
+        }
+
+        .property {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+
+        .property-name {
+            color: var(--text-light);
+            font-weight: 500;
+        }
+
+        .property-value {
+            color: var(--text);
+            text-align: right;
+        }
+
+        .percentage {
+            color: var(--success);
+            font-size: 0.8rem;
+            margin-left: 5px;
+        }
+
+        .gift-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .action-btn {
+            flex: 1;
+            padding: 8px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .view-btn {
+            background-color: var(--primary);
+            color: white;
+            border: 1px solid var(--primary);
+        }
+
+        .view-btn:hover {
+            background-color: var(--primary-dark);
+        }
+
+        .copy-btn {
+            background-color: white;
+            color: var(--primary);
+            border: 1px solid var(--primary);
+        }
+
+        .copy-btn:hover {
+            background-color: #f0f8ff;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 50px 20px;
+            color: var(--text-light);
+        }
+
+        .empty-icon {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            color: #cccccc;
+        }
+
+        .export-btn {
+            margin-top: 20px;
+            width: 100%;
+        }
+
+        @media (max-width: 768px) {
+            .control-panel {
+                flex-direction: column;
+            }
+
+            .form-group {
+                min-width: 100%;
+            }
+
+            .stats {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .gift-list {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .not-found {
+            text-align: center;
+            padding: 50px 20px;
+            color: var(--text-light);
+        }
+
+        /* Стили для отображения анимации */
+        .gift-animation {
+            width: 100%;
+            max-width: 300px;
+            height: auto;
+            margin: 10px auto;
+            border-radius: 15px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>Gift Search</h1>
+        </header>
+
+        <div class="control-panel">
+            <div class="form-group">
+                <label for="giftModel">Gift Model</label>
+                <select id="giftModel">
+                    <option value="">Select a model</option>
+                    <!-- Options will be filled by JavaScript -->
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="giftNumber">Gift Number (1-300000)</label>
+                <input type="number" id="giftNumber" min="1" max="300000" placeholder="Number nft gifts">
+            </div>
+
+            <button id="parseBtn" class="btn" onclick="parseGift()">
+                <span>Search</span>
+            </button>
+        </div>
+
+        <div id="loading" class="loading">
+            <div class="spinner"></div>
+            <p>Searching for gift, please wait...</p>
+        </div>
+
+        <div id="giftList" class="gift-list">
+            <div class="empty-state">
+                <div class="empty-icon">🔍</div>
+                <p>Select a gift model and click "Search"</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>
+    <script>
+        // Gift models without numbers and special characters
+        const giftModels = [
+            "WitchHat", "WinterWreath", "VoodooDoll", "VintageCigar", "TrappedHeart",
+            "ToyBear", "TopHat", "TamaGadget", "SwissWatch", "StarNotepad",
+            "SpyAgaric", "SpicedWine", "SnowMittens", "SnowGlobe", "SleighBell",
+            "SkullFlower", "SignetRing", "SharpTongue", "ScaredCat", "SantaHat",
+            "SakuraFlower", "RecordPlayer", "PreciousPeach", "PlushPepe", "PerfumeBottle",
+            "PartySparkler", "NekoHelmet", "MiniOscar", "MagicPotion", "MadPumpkin",
+            "LunarSnake", "LovePotion", "LoveCandle", "LootBag", "LolPop",
+            "KissedFrog", "JingleBells", "JesterHat", "JellyBunny", "IonGem",
+            "HypnoLollipop", "HomemadeCake", "HexPot", "HangingStar", "GingerCookie",
+            "GenieLamp", "FlyingBroom", "EvilEye", "EternalRose", "ElectricSkull",
+            "DurovsCap", "DiamondRing", "DeskCalendar", "CrystalBall", "CookieHeart",
+            "CandyCane", "BunnyMuffin", "BerryBox", "BDayCandle", "AstralShard",
+            "JackintheBox", "EasterEgg", "BondedRing", "LightSword", "BigYear", 
+            "PetSnake", "SnakeBox", "XmasStoking", "HolidayDrink", "GemSignet", 
+            "RestlessJar", "NailBracelet", "HeroicHelmet", "BowTie"
+        ];
+
+        // A mapping of gift models to their image/animation URLs
+        const giftMedia = {
+            "WitchHat": "https://nft.fragment.com/gift/witchhat-1.webp",
+            "WinterWreath": "https://nft.fragment.com/gift/winterwreath-1.webp",
+            "VoodooDoll": "https://nft.fragment.com/gift/voodoodoll-1.webp",
+            "VintageCigar": "https://nft.fragment.com/gift/vintagecigar-1.webp",
+            "TrappedHeart": "https://nft.fragment.com/gift/trappedheart-1.webp",
+            "ToyBear": "https://nft.fragment.com/gift/toybear-1.webp",
+            "TopHat": "https://nft.fragment.com/gift/tophat-1.webp",
+            "TamaGadget": "https://nft.fragment.com/gift/tamagadget-1.webp",
+            "SwissWatch": "https://nft.fragment.com/gift/swisswatch-1.webp",
+            "StarNotepad": "https://nft.fragment.com/gift/starnotepad-1.webp",
+            "SpyAgaric": "https://nft.fragment.com/gift/spyagaric-1.webp",
+            "SpicedWine": "https://nft.fragment.com/gift/spicedwine-1.webp",
+            "SnowMittens": "https://nft.fragment.com/gift/snowmittens-1.webp",
+            "SnowGlobe": "https://nft.fragment.com/gift/snowglobe-1.webp",
+            "SleighBell": "https://nft.fragment.com/gift/sleighbell-1.webp",
+            "SkullFlower": "https://nft.fragment.com/gift/skullflower-1.webp",
+            "SignetRing": "https://nft.fragment.com/gift/signetring-1.webp",
+            "SharpTongue": "https://nft.fragment.com/gift/sharptongue-1.webp",
+            "ScaredCat": "https://nft.fragment.com/gift/scaredcat-1.webp",
+            "SantaHat": "https://nft.fragment.com/gift/santaHat-1.webp",
+            "SakuraFlower": "https://nft.fragment.com/gift/sakuraflower-1.webp",
+            "RecordPlayer": "https://nft.fragment.com/gift/recordplayer-1.webp",
+            "PreciousPeach": "https://nft.fragment.com/gift/preciouspeach-1.webp",
+            "PlushPepe": "https://nft.fragment.com/gift/plushpepe-1.webp",
+            "PerfumeBottle": "https://nft.fragment.com/gift/perfumebottle-1.webp",
+            "PartySparkler": "https://nft.fragment.com/gift/partysparkler-1.webp",
+            "NekoHelmet": "https://nft.fragment.com/gift/nekohelmet-1.webp",
+            "MiniOscar": "https://nft.fragment.com/gift/minioscar-1.webp",
+            "MagicPotion": "https://nft.fragment.com/gift/magicpotion-1.webp",
+            "MadPumpkin": "https://nft.fragment.com/gift/madpumpkin-1.webp",
+            "LunarSnake": "https://nft.fragment.com/gift/lunarsnake-1.webp",
+            "LovePotion": "https://nft.fragment.com/gift/lovepotion-1.webp",
+            "LoveCandle": "https://nft.fragment.com/gift/lovecandle-1.webp",
+            "LootBag": "https://nft.fragment.com/gift/lootbag-1.webp",
+            "LolPop": "https://nft.fragment.com/gift/lolPop-1.webp",
+            "KissedFrog": "https://nft.fragment.com/gift/kissedfrog-1.webp",
+            "JingleBells": "https://nft.fragment.com/gift/jinglebells-1.webp",
+            "JesterHat": "https://nft.fragment.com/gift/jesterHat-1.webp",
+            "JellyBunny": "https://nft.fragment.com/gift/jellybunny-1.webp",
+            "IonGem": "https://nft.fragment.com/gift/iongem-1.webp",
+            "HypnoLollipop": "https://nft.fragment.com/gift/hypnoLollipop-1.webp",
+            "HomemadeCake": "https://nft.fragment.com/gift/homemadecake-1.webp",
+            "HexPot": "https://nft.fragment.com/gift/hexpot-1.webp",
+            "HangingStar": "https://nft.fragment.com/gift/hangingstar-1.webp",
+            "GingerCookie": "https://nft.fragment.com/gift/gingercookie-1.webp",
+            "GenieLamp": "https://nft.fragment.com/gift/genieLamp-1.webp",
+            "FlyingBroom": "https://nft.fragment.com/gift/flyingbroom-1.webp",
+            "EvilEye": "https://nft.fragment.com/gift/evilEye-1.webp",
+            "EternalRose": "https://nft.fragment.com/gift/eternalRose-1.webp",
+            "ElectricSkull": "https://nft.fragment.com/gift/electricskull-1.webp",
+            "DurovsCap": "https://nft.fragment.com/gift/durovsCap-1.webp",
+            "DiamondRing": "https://nft.fragment.com/gift/diamondring-1.webp",
+            "DeskCalendar": "https://nft.fragment.com/gift/deskcalendar-1.webp",
+            "CrystalBall": "https://nft.fragment.com/gift/crystalball-1.webp",
+            "CookieHeart": "https://nft.fragment.com/gift/cookieheart-1.webp",
+            "CandyCane": "https://nft.fragment.com/gift/candyCane-1.webp",
+            "BunnyMuffin": "https://nft.fragment.com/gift/bunnyMuffin-1.webp",
+            "BerryBox": "https://nft.fragment.com/gift/berryBox-1.webp",
+            "BDayCandle": "https://nft.fragment.com/gift/bDayCandle-1.webp",
+            "AstralShard": "https://nft.fragment.com/gift/astralShard-1.webp",
+            "JackintheBox": "https://nft.fragment.com/gift/jackintheBox-1.webp",
+            "EasterEgg": "https://nft.fragment.com/gift/easterEgg-1.webp",
+            "BondedRing": "https://nft.fragment.com/gift/bondedRing-1.webp",
+            "LightSword": "https://nft.fragment.com/gift/lightSword-1.webp",
+            "BigYear": "https://nft.fragment.com/gift/bigYear-1.webp",
+            "PetSnake": "https://nft.fragment.com/gift/petSnake-1.webp",
+            "SnakeBox": "https://nft.fragment.com/gift/snakeBox-1.webp",
+            "XmasStoking": "https://nft.fragment.com/gift/xmasStoking-1.webp",
+            "HolidayDrink": "https://nft.fragment.com/gift/holidayDrink-1.webp",
+            "GemSignet": "https://nft.fragment.com/gift/gemSignet-1.webp",
+            "RestlessJar": "https://nft.fragment.com/gift/restlessJar-1.webp",
+            "NailBracelet": "https://nft.fragment.com/gift/nailBracelet-1.webp",
+            "HeroicHelmet": "https://nft.fragment.com/gift/heroicHelmet-1.webp",
+            "BowTie": "https://nft.fragment.com/gift/bowTie-1.webp"
+        };
+
+        // Fill the select dropdown with gift models
+        const giftModelSelect = document.getElementById('giftModel');
+        giftModels.forEach(model => {
+            const option = document.createElement('option');
+            option.value = model;
+            option.textContent = model;
+            giftModelSelect.appendChild(option);
+        });
+
+        // Parse a single gift
+        async function parseGift() {
+            const giftModel = document.getElementById('giftModel').value;
+            const giftNumber = document.getElementById('giftNumber').value;
+
+            if (!giftModel) {
+                alert('Please select a gift model first');
+                return;
+            }
+
+            if (!giftNumber) {
+                alert('Please enter a gift number');
+                return;
+            }
+
+            // Show loading animation
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('giftList').innerHTML = ''; // Clear previous results
+
+            // Simulate loading time
+            setTimeout(async () => {
+                // Hide loading animation
+                document.getElementById('loading').style.display = 'none';
+
+                // Perform actual parsing
+                await parseSingleGift(giftModel, giftNumber);
+            }, 1000); // 1 seconds
+        }
+
+        // Parse single gift (core function)
+        async function parseSingleGift(giftModel, giftNumber) {
+            const url = `https://t.me/nft/${giftModel}-${giftNumber}`;
+
+            try {
+                // Use CORS proxy
+                const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
+                const response = await fetch(proxyUrl);
+                const data = await response.json();
+
+                if (data.contents) {
+                    const parser = new DOMParser();
+                    const htmlDoc = parser.parseFromString(data.contents, 'text/html');
+
+                    // Check if gift is valid (has owner)
+                    const ownerTag = htmlDoc.querySelector('a[href^="https://t.me/"]');
+                    const isValid = ownerTag !== null;
+
+                    if (isValid) {
+                        displayGiftCard(htmlDoc, url, giftNumber, giftModel);
+                    } else {
+                        displayNotFound();
+                    }
+
+                } else {
+                    displayNotFound();
+                }
+            } catch (error) {
+                console.error('Error parsing gift #${giftNumber}:', error);
+                displayNotFound();
+            }
+        }
+
+        // Display gift card with animation
+        function displayGiftCard(doc, giftUrl, giftNumber, giftModel) {
+            // Extract data
+            const title = doc.querySelector('meta[property="og:title"]')?.content || `${giftModel} #${giftNumber}`;
+
+            // Owner info
+            const ownerTag = doc.querySelector('a[href^="https://t.me/"]');
+            const owner = {
+                username: ownerTag?.querySelector('span')?.textContent || 'Unknown',
+                url: ownerTag?.href || '#'
+            };
+
+            // Get media URL (either image or animation)
+            const mediaUrl = giftMedia[giftModel];
+
+            // Create gift card
+            const giftCard = document.createElement('div');
+            giftCard.className = 'gift-card';
+
+            let cardHtml = `
+        <div class="gift-content">
+            <div class="gift-model">${giftModel}</div>
+            <h3 class="gift-title">${title}</h3>
+
+            <!-- Display the media (either image or animation) -->
+            <img src="${mediaUrl}" alt="${giftModel} Image" class="gift-animation">
+    `;
+
+            if (owner.url !== '#') {
+                cardHtml += `
+            <a href="${owner.url}" class="gift-owner" target="_blank">
+                <div class="owner-avatar">${owner.username.charAt(0).toUpperCase()}</div>
+                ${owner.username}
+            </a>
+        `;
+            }
+
+            cardHtml += `<div class="gift-properties">`;
+
+            // Extract characteristics
+            const characteristics = [];
+            const table = doc.querySelector('table.tgme_gift_table');
+            if (table) {
+                table.querySelectorAll('tr').forEach(row => {
+                    const cols = row.querySelectorAll('th, td');
+                    if (cols.length === 2) {
+                        const key = cols[0].textContent.trim();
+                        const value = cols[1].textContent.trim();
+                        characteristics.push({
+                            name: key,
+                            value: value
+                        });
+                    }
+                });
+            }
+
+            // Add characteristics to the card
+            characteristics.forEach(prop => {
+                cardHtml += `
+            <div class="property">
+                <span class="property-name">${prop.name}</span>
+                <span class="property-value">${prop.value}</span>
+            </div>
+        `;
+            });
+
+            cardHtml += `
+            </div>
+
+            <div class="gift-actions">
+                <button class="action-btn copy-btn" onclick="navigator.clipboard.writeText('${giftUrl}')">Copy Link</button>
+            </div>
+        </div>
+    `;
+
+            giftCard.innerHTML = cardHtml;
+
+            // Add to the gift list
+            const giftList = document.getElementById('giftList');
+            giftList.innerHTML = ''; // Clear "empty" or "not found" message
+            giftList.appendChild(giftCard);
+        }
+
+        function displayNotFound() {
+            const giftList = document.getElementById('giftList');
+            giftList.innerHTML = `
+        <div class="not-found">
+            <div class="empty-icon">😞</div>
+            <p>Gift not found</p>
+        </div>
+    `;
+        }
+    </script>
+</body>
+</html>
