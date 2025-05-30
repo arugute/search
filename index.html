@@ -1,664 +1,1027 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gift Search</title>
+    <title>TG NFT Finder</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+        
         :root {
-            --primary: #0088cc;
-            --primary-dark: #006699;
-            --background: #f5f5f5;
-            --card-bg: #ffffff;
-            --text: #333333;
-            --text-light: #777777;
-            --border: #e0e0e0;
-            --success: #4caf50;
-            --error: #f44336;
+            --bg: #0a0a12;
+            --card-bg: #161626;
+            --card-hover: #1e1e35;
+            --text: #f0f2f5;
+            --text-secondary: #b0b5c0;
+            --accent: #6c5ce7;
+            --accent-hover: #5649d1;
+            --secondary: #3a3a5a;
+            --success: #00b894;
+            --gradient: linear-gradient(135deg, #6c5ce7 0%, #a29bfe 100%);
+            --glass: rgba(255, 255, 255, 0.05);
+            --shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
         }
-
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
         body {
-            font-family: 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', sans-serif;
-            background-color: var(--background);
+            font-family: 'Poppins', sans-serif;
+            background: var(--bg);
             color: var(--text);
             margin: 0;
             padding: 0;
-            line-height: 1.6;
+            min-height: 100vh;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(108, 92, 231, 0.1) 0%, transparent 20%),
+                radial-gradient(circle at 90% 80%, rgba(108, 92, 231, 0.1) 0%, transparent 20%);
+            overflow-x: hidden;
         }
-
+        
         .container {
-            max-width: 1200px;
+            max-width: 680px;
             margin: 0 auto;
-            padding: 20px;
+            padding: 2rem 1.5rem;
+            position: relative;
+            z-index: 1;
         }
-
-        header {
-            text-align: center;
-            margin-bottom: 30px;
-            padding-bottom: 20px;
-            border-bottom: 1px solid var(--border);
-        }
-
+        
         h1 {
-            color: var(--primary);
-            margin-bottom: 10px;
-            font-weight: 600;
+            text-align: center;
+            font-weight: 700;
+            margin-bottom: 2.5rem;
+            font-size: 2.5rem;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 2px 10px rgba(108, 92, 231, 0.2);
+            position: relative;
+            display: inline-block;
+            left: 50%;
+            transform: translateX(-50%);
         }
-
-        .subtitle {
-            color: var(--text-light);
-            font-size: 1.1rem;
-        }
-
-        .control-panel {
-            background-color: var(--card-bg);
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-            margin-bottom: 30px;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 15px;
-            align-items: flex-end;
-        }
-
-        .form-group {
-            flex: 1;
-            min-width: 200px;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 500;
-            color: var(--text);
-        }
-
-        select,
-        input {
+        
+        h1::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 0;
             width: 100%;
-            padding: 12px 15px;
-            border: 1px solid var(--border);
-            border-radius: 8px;
+            height: 3px;
+            background: var(--gradient);
+            border-radius: 3px;
+            transform: scaleX(0);
+            transform-origin: right;
+            transition: transform 0.6s cubic-bezier(0.19, 1, 0.22, 1);
+        }
+        
+        h1:hover::after {
+            transform: scaleX(1);
+            transform-origin: left;
+        }
+        
+        .search-box {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 1.75rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow);
+            backdrop-filter: blur(8px);
+            border: 1px solid var(--glass);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.1);
+        }
+        
+        .search-box:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+        }
+        
+        .search-row {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        select, input {
+            flex: 1;
+            background: rgba(30, 30, 50, 0.7);
+            border: 1px solid var(--secondary);
+            border-radius: 12px;
+            padding: 1rem 1.25rem;
+            color: var(--text);
+            font-family: 'Poppins', sans-serif;
             font-size: 1rem;
-            transition: border 0.3s;
-        }
-
-        select:focus,
-        input:focus {
+            transition: all 0.3s ease;
+            appearance: none;
             outline: none;
-            border-color: var(--primary);
         }
-
-        .btn {
-            padding: 12px 24px;
-            background-color: var(--primary);
+        
+        select {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23b0b5c0' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 1rem center;
+            background-size: 12px;
+        }
+        
+        select:focus, input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.3);
+        }
+        
+        button {
+            background: var(--gradient);
             color: white;
             border: none;
+            border-radius: 12px;
+            padding: 1.1rem;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            font-size: 1.05rem;
+            width: 100%;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+            box-shadow: 0 4px 15px rgba(108, 92, 231, 0.4);
+        }
+        
+        button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #5649d1 0%, #8479f0 100%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: -1;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(108, 92, 231, 0.5);
+        }
+        
+        button:hover::before {
+            opacity: 1;
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        #results-container {
+            min-height: 200px;
+            position: relative;
+        }
+        
+        .result-card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 0;
+            margin-top: 1.5rem;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.1) forwards;
+            transition: all 0.4s ease;
+            border: 1px solid var(--glass);
+        }
+        
+        .result-card:hover {
+            transform: translateY(-5px) !important;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+        }
+        
+        .gift-image-container {
+            position: relative;
+            overflow: hidden;
+            height: 280px;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 16px 16px 0 0;
+        }
+        
+        .gift-image {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            transition: transform 0.5s ease;
+            z-index: 1;
             border-radius: 8px;
+        }
+        
+        .result-card:hover .gift-image {
+            transform: scale(1.05);
+        }
+        
+        .gift-image-container::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(108, 92, 231, 0.1) 0%, transparent 70%);
+            animation: rotate 20s linear infinite;
+            z-index: 0;
+        }
+        
+        .gift-info {
+            padding: 1.75rem;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .gift-name {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 0.5rem;
+            background: linear-gradient(90deg, var(--text) 0%, var(--accent) 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            display: inline-block;
+        }
+        
+        .gift-details {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+        
+        .detail-item {
+            background: rgba(30, 30, 50, 0.5);
+            border-radius: 10px;
+            padding: 0.75rem;
+            border: 1px solid var(--secondary);
+        }
+        
+        .detail-label {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.25rem;
+        }
+        
+        .detail-value {
             font-size: 1rem;
             font-weight: 500;
-            cursor: pointer;
-            transition: all 0.3s;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
-
-        .btn:hover {
-            background-color: var(--primary-dark);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-
-        .btn:disabled {
-            background-color: #cccccc;
-            cursor: not-allowed;
-            transform: none;
-            box-shadow: none;
-        }
-
-        .btn-secondary {
-            background-color: #f0f0f0;
             color: var(--text);
+            word-break: break-word;
         }
-
-        .btn-secondary:hover {
-            background-color: #e0e0e0;
-        }
-
-        .stats {
-            display: flex;
-            justify-content: space-between;
-            background-color: var(--card-bg);
-            border-radius: 12px;
-            padding: 15px 20px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-        }
-
-        .stat-item {
-            text-align: center;
-            flex: 1;
-        }
-
-        .stat-value {
-            font-size: 1.5rem;
-            font-weight: 600;
-            color: var(--primary);
-        }
-
-        .stat-label {
-            font-size: 0.9rem;
-            color: var(--text-light);
-        }
-
-        .loading {
-            text-align: center;
-            padding: 40px 0;
-            display: none;
-        }
-
-        .spinner {
-            width: 50px;
-            height: 50px;
-            border: 5px solid rgba(0, 136, 204, 0.2);
-            border-radius: 50%;
-            border-top-color: var(--primary);
-            animation: spin 1s linear infinite;
-            margin: 0 auto 20px;
-        }
-
-        @keyframes spin {
-            100% {
-                transform: rotate(360deg);
-            }
-        }
-
-        .gift-list {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 20px;
-        }
-
-        .gift-card {
-            background-color: var(--card-bg);
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-            transition: transform 0.3s, box-shadow 0.3s;
-        }
-
-        .gift-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
-        }
-
-        .gift-content {
-            padding: 20px;
-        }
-
-        .gift-title {
-            font-size: 1.2rem;
-            font-weight: 600;
-            margin-bottom: 10px;
-            color: var(--text);
-        }
-
-        .gift-model {
-            display: inline-block;
-            background-color: var(--primary);
-            color: white;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 0.8rem;
-            margin-bottom: 10px;
-        }
-
-        .gift-owner {
+        
+        .owner {
+            font-size: 1rem;
+            color: var(--text-secondary);
             display: flex;
             align-items: center;
-            margin-bottom: 15px;
-            color: var(--primary);
+            gap: 0.5rem;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--secondary);
+        }
+        
+        .owner a {
+            color: var(--accent);
             text-decoration: none;
             font-weight: 500;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
         }
-
-        .gift-owner:hover {
+        
+        .owner a:hover {
+            color: #a29bfe;
             text-decoration: underline;
         }
-
-        .owner-avatar {
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            margin-right: 8px;
-            background-color: var(--primary);
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.7rem;
-            font-weight: bold;
+        
+        .owner a::after {
+            content: '↗';
+            font-size: 0.8em;
+            transition: transform 0.2s ease;
         }
-
-        .gift-properties {
-            margin-top: 15px;
+        
+        .owner a:hover::after {
+            transform: translate(2px, -2px);
         }
-
-        .property {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 8px;
-            font-size: 0.9rem;
-        }
-
-        .property-name {
-            color: var(--text-light);
-            font-weight: 500;
-        }
-
-        .property-value {
-            color: var(--text);
-            text-align: right;
-        }
-
-        .percentage {
-            color: var(--success);
-            font-size: 0.8rem;
-            margin-left: 5px;
-        }
-
-        .gift-actions {
-            display: flex;
-            gap: 10px;
-            margin-top: 20px;
-        }
-
-        .action-btn {
-            flex: 1;
-            padding: 8px;
-            border-radius: 6px;
-            font-size: 0.9rem;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .view-btn {
-            background-color: var(--primary);
-            color: white;
-            border: 1px solid var(--primary);
-        }
-
-        .view-btn:hover {
-            background-color: var(--primary-dark);
-        }
-
-        .copy-btn {
-            background-color: white;
-            color: var(--primary);
-            border: 1px solid var(--primary);
-        }
-
-        .copy-btn:hover {
-            background-color: #f0f8ff;
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 50px 20px;
-            color: var(--text-light);
-        }
-
-        .empty-icon {
-            font-size: 3rem;
-            margin-bottom: 20px;
-            color: #cccccc;
-        }
-
-        .export-btn {
-            margin-top: 20px;
-            width: 100%;
-        }
-
-        @media (max-width: 768px) {
-            .control-panel {
-                flex-direction: column;
-            }
-
-            .form-group {
-                min-width: 100%;
-            }
-
-            .stats {
-                flex-direction: column;
-                gap: 15px;
-            }
-
-            .gift-list {
-                grid-template-columns: 1fr;
-            }
-        }
-
+        
         .not-found {
             text-align: center;
-            padding: 50px 20px;
-            color: var(--text-light);
+            padding: 3rem 2rem;
+            color: var(--text-secondary);
+            background: var(--card-bg);
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--glass);
+            animation: fadeIn 0.5s ease forwards;
+        }
+        
+        .not-found svg {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 1.5rem;
+            opacity: 0.7;
+        }
+        
+        .loading-container {
+            text-align: center;
+            padding: 3rem;
+            background: var(--card-bg);
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--glass);
+            animation: fadeIn 0.5s ease forwards;
+        }
+        
+        .loading {
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            border: 3px solid rgba(108, 92, 231, 0.2);
+            border-radius: 50%;
+            border-top-color: var(--accent);
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 12px;
+            vertical-align: middle;
+        }
+        
+        .loading-text {
+            display: inline-block;
+            font-weight: 500;
+            color: var(--text-secondary);
+            background: linear-gradient(90deg, var(--text-secondary), #fff, var(--text-secondary));
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            animation: shimmer 2s linear infinite;
+        }
+        
+        .nft-badge {
+            display: inline-flex;
+            align-items: center;
+            background: rgba(108, 92, 231, 0.2);
+            color: var(--accent);
+            padding: 0.25rem 0.75rem;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-left: 0.75rem;
+            border: 1px solid rgba(108, 92, 231, 0.3);
+        }
+        
+        .nft-badge::before {
+            content: 'NFT';
+            margin-right: 0.25rem;
         }
 
-        /* Стили для отображения анимации */
-        .gift-animation {
+        .view-button {
+            display: block;
+            margin-top: 1.5rem;
+            background: rgba(108, 92, 231, 0.1);
+            color: var(--accent);
+            border: 1px solid var(--accent);
+            border-radius: 10px;
+            padding: 0.75rem;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 500;
+            font-size: 1rem;
             width: 100%;
-            max-width: 300px;
-            height: auto;
-            margin: 10px auto;
-            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            text-decoration: none;
+        }
+
+        .view-button:hover {
+            background: rgba(108, 92, 231, 0.2);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(108, 92, 231, 0.3);
+        }
+        
+        .search-type-selector {
+            display: flex;
+            margin-bottom: 1.5rem;
+            background: rgba(30, 30, 50, 0.5);
+            border-radius: 12px;
+            padding: 4px;
+        }
+        
+        .search-type-btn {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            padding: 0.75rem;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 500;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-radius: 8px;
+        }
+        
+        .search-type-btn.active {
+            background: rgba(108, 92, 231, 0.3);
+            color: var(--text);
+            font-weight: 600;
+        }
+        
+        .backdrop-colors {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+        
+        .backdrop-color {
+            padding: 0.5rem;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: 1px solid transparent;
+        }
+        
+        .backdrop-color:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        
+        .backdrop-color.selected {
+            border: 1px solid var(--accent);
+            box-shadow: 0 0 0 2px rgba(108, 92, 231, 0.3);
+        }
+        
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        @keyframes rotate {
+            to { transform: rotate(360deg); }
+        }
+        
+        @keyframes shimmer {
+            to { background-position: 200% center; }
+        }
+        
+        /* Floating particles background */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            overflow: hidden;
+        }
+        
+        .particle {
+            position: absolute;
+            background: rgba(108, 92, 231, 0.3);
+            border-radius: 50%;
+            animation: float linear infinite;
+        }
+        
+        @keyframes float {
+            to {
+                transform: translateY(-100vh) rotate(360deg);
+            }
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .container {
+                padding: 1.5rem 1rem;
+            }
+            
+            h1 {
+                font-size: 2rem;
+                margin-bottom: 2rem;
+            }
+            
+            .search-row {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .gift-image-container {
+                height: 220px;
+            }
+            
+            .gift-details {
+                grid-template-columns: 1fr;
+            }
+            
+            .backdrop-colors {
+                grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            }
         }
     </style>
 </head>
-
 <body>
+    <div class="particles" id="particles"></div>
+    
     <div class="container">
-        <header>
-            <h1>Gift Search</h1>
-        </header>
-
-        <div class="control-panel">
-            <div class="form-group">
-                <label for="giftModel">Gift Model</label>
-                <select id="giftModel">
-                    <option value="">Select a model</option>
-                    <!-- Options will be filled by JavaScript -->
+        <h1>Telegram NFT Finder</h1>
+        
+        <div class="search-box animate__animated animate__fadeIn">
+            <div class="search-type-selector">
+                <button class="search-type-btn active" id="search-by-nft">Search by NFT</button>
+                <button class="search-type-btn" id="search-by-backdrop">Search by Backdrop</button>
+            </div>
+            
+            <div id="nft-search-section">
+                <div class="search-row">
+                    <select id="gift-select">
+                        <option value="">Select Gift</option>
+                        <option value="EternalRose">EternalRose</option>
+                        <option value="AstralShard">AstralShard</option>
+                        <option value="BDayCandle">BDayCandle</option>
+                        <option value="BerryBox">BerryBox</option>
+                        <option value="BigYear">BigYear</option>
+                        <option value="BondedRing">BondedRing</option>
+                        <option value="BowTie">BowTie</option>
+                        <option value="BunnyMuffin">BunnyMuffin</option>
+                        <option value="CandyCane">CandyCane</option>
+                        <option value="CookieHeart">CookieHeart</option>
+                        <option value="CrystalBall">CrystalBall</option>
+                        <option value="DeskCalendar">DeskCalendar</option>
+                        <option value="DiamondRing">DiamondRing</option>
+                        <option value="DurovsCap">DurovsCap</option>
+                        <option value="ElectricSkull">ElectricSkull</option>
+                        <option value="EvilEye">EvilEye</option>
+                        <option value="FlyingBroom">FlyingBroom</option>
+                        <option value="GenieLamp">GenieLamp</option>
+                        <option value="GingerCookie">GingerCookie</option>
+                        <option value="HangingStar">HangingStar</option>
+                        <option value="HeroicHelmet">HeroicHelmet</option>
+                        <option value="HexPot">HexPot</option>
+                        <option value="HomemadeCake">HomemadeCake</option>
+                        <option value="HypnoLollipop">HypnoLollipop</option>
+                        <option value="IonGem">IonGem</option>
+                        <option value="JackintheBox">JackintheBox</option>
+                        <option value="JellyBunny">JellyBunny</option>
+                        <option value="JesterHat">JesterHat</option>
+                        <option value="JingleBells">JingleBells</option>
+                        <option value="KissedFrog">KissedFrog</option>
+                        <option value="LightSword">LightSword</option>
+                        <option value="LolPop">LolPop</option>
+                        <option value="LootBag">LootBag</option>
+                        <option value="LoveCandle">LoveCandle</option>
+                        <option value="LovePotion">LovePotion</option>
+                        <option value="LunarSnake">LunarSnake</option>
+                        <option value="MadPumpkin">MadPumpkin</option>
+                        <option value="MagicPotion">MagicPotion</option>
+                        <option value="MiniOscar">MiniOscar</option>
+                        <option value="NailBracelet">NailBracelet</option>
+                        <option value="NekoHelmet">NekoHelmet</option>
+                        <option value="PartySparkler">PartySparkler</option>
+                        <option value="PerfumeBottle">PerfumeBottle</option>
+                        <option value="PetSnake">PetSnake</option>
+                        <option value="PlushPepe">PlushPepe</option>
+                        <option value="PreciousPeach">PreciousPeach</option>
+                        <option value="RecordPlayer">RecordPlayer</option>
+                        <option value="RestlessJar">RestlessJar</option>
+                        <option value="SakuraFlower">SakuraFlower</option>
+                        <option value="SantaHat">SantaHat</option>
+                        <option value="ScaredCat">ScaredCat</option>
+                        <option value="SharpTongue">SharpTongue</option>
+                        <option value="SignetRing">SignetRing</option>
+                        <option value="SkullFlower">SkullFlower</option>
+                        <option value="SleighBell">SleighBell</option>
+                        <option value="SnowGlobe">SnowGlobe</option>
+                        <option value="SnowMittens">SnowMittens</option>
+                        <option value="SpicedWine">SpicedWine</option>
+                        <option value="SpyAgaric">SpyAgaric</option>
+                        <option value="StarNotepad">StarNotepad</option>
+                        <option value="SwissWatch">SwissWatch</option>
+                        <option value="TamaGadget">TamaGadget</option>
+                        <option value="TopHat">TopHat</option>
+                        <option value="ToyBear">ToyBear</option>
+                        <option value="TrappedHeart">TrappedHeart</option>
+                        <option value="VintageCigar">VintageCigar</option>
+                        <option value="VoodooDoll">VoodooDoll</option>
+                        <option value="WinterWreath">WinterWreath</option>
+                        <option value="WitchHat">WitchHat</option>
+                        <option value="XmasStoking">XmasStoking</option>
+                        <option value="GemSignet">GemSignet</option>
+                        <option value="HolidayDrink">HolidayDrink</option>
+                        <option value="SnakeBox">SnakeBox</option>
+                    </select>
+                    <input type="number" id="gift-number" placeholder="NFT Number" min="1">
+                </div>
+            </div>
+            
+            <div id="backdrop-search-section" style="display: none;">
+                <select id="backdrop-select">
+                    <option value="">Select Backdrop Color</option>
+                    <option value="Black">Black</option>
+                    <option value="Electric Purple">Electric Purple</option>
+                    <option value="Lavender">Lavender</option>
+                    <option value="Cyberpunk">Cyberpunk</option>
+                    <option value="Electric Indigo">Electric Indigo</option>
+                    <option value="Neon Blue">Neon Blue</option>
+                    <option value="Navy Blue">Navy Blue</option>
+                    <option value="Sapphire">Sapphire</option>
+                    <option value="Sky Blue">Sky Blue</option>
+                    <option value="Azure Blue">Azure Blue</option>
+                    <option value="Pacific Cyan">Pacific Cyan</option>
+                    <option value="Aquamarine">Aquamarine</option>
+                    <option value="Pacific Green">Pacific Green</option>
+                    <option value="Emerald">Emerald</option>
+                    <option value="Mint Green">Mint Green</option>
+                    <option value="Malachite">Malachite</option>
+                    <option value="Shamrock Green">Shamrock Green</option>
+                    <option value="Lemongrass">Lemongrass</option>
+                    <option value="Light Olive">Light Olive</option>
+                    <option value="Satin Gold">Satin Gold</option>
+                    <option value="Pure Gold">Pure Gold</option>
+                    <option value="Amber">Amber</option>
+                    <option value="Caramel">Caramel</option>
+                    <option value="Orange">Orange</option>
+                    <option value="Carrot Juice">Carrot Juice</option>
+                    <option value="Coral Red">Coral Red</option>
+                    <option value="Persimmon">Persimmon</option>
+                    <option value="Strawberry">Strawberry</option>
+                    <option value="Raspberry">Raspberry</option>
+                    <option value="Mystic Pearl">Mystic Pearl</option>
+                    <option value="Fandango">Fandango</option>
+                    <option value="Dark Lilac">Dark Lilac</option>
+                    <option value="English Violet">English Violet</option>
+                    <option value="Moonstone">Moonstone</option>
+                    <option value="Pine Green">Pine Green</option>
+                    <option value="Hunter Green">Hunter Green</option>
+                    <option value="Pistachio">Pistachio</option>
+                    <option value="Khaki Green">Khaki Green</option>
+                    <option value="Desert Sand">Desert Sand</option>
+                    <option value="Cappuccino">Cappuccino</option>
+                    <option value="Rosewood">Rosewood</option>
+                    <option value="Ivory White">Ivory White</option>
+                    <option value="Platinum">Platinum</option>
+                    <option value="Roman Silver">Roman Silver</option>
+                    <option value="Steel Grey">Steel Grey</option>
+                    <option value="Silver Blue">Silver Blue</option>
+                    <option value="Burgundy">Burgundy</option>
+                    <option value="Indigo Dye">Indigo Dye</option>
+                    <option value="Midnight Blue">Midnight Blue</option>
+                    <option value="Onyx Black">Onyx Black</option>
+                    <option value="Battleship Grey">Battleship Grey</option>
+                    <option value="Purple">Purple</option>
+                    <option value="Grape">Grape</option>
+                    <option value="Cobalt Blue">Cobalt Blue</option>
+                    <option value="French Blue">French Blue</option>
+                    <option value="Turquoise">Turquoise</option>
+                    <option value="Jade Green">Jade Green</option>
+                    <option value="Copper">Copper</option>
+                    <option value="Chestnut">Chestnut</option>
+                    <option value="Chocolate">Chocolate</option>
+                    <option value="Marine Blue">Marine Blue</option>
+                    <option value="Tactical Pine">Tactical Pine</option>
+                    <option value="Gunship Green">Gunship Green</option>
+                    <option value="Dark Green">Dark Green</option>
+                    <option value="Seal Brown">Seal Brown</option>
+                    <option value="Rifle Green">Rifle Green</option>
+                    <option value="Ranger Green">Ranger Green</option>
+                    <option value="Camo Green">Camo Green</option>
+                    <option value="Feldgrau">Feldgrau</option>
+                    <option value="Gunmetal">Gunmetal</option>
+                    <option value="Deep Cyan">Deep Cyan</option>
+                    <option value="Mexican Pink">Mexican Pink</option>
+                    <option value="Tomato">Tomato</option>
+                    <option value="Fire Engine">Fire Engine</option>
+                    <option value="Celtic Blue">Celtic Blue</option>
+                    <option value="Old Gold">Old Gold</option>
+                    <option value="Burnt Sienna">Burnt Sienna</option>
+                    <option value="Carmine">Carmine</option>
+                    <option value="Mustard">Mustard</option>
+                    <option value="French Violet">French Violet</option>
                 </select>
             </div>
-
-            <div class="form-group">
-                <label for="giftNumber">Gift Number (1-300000)</label>
-                <input type="number" id="giftNumber" min="1" max="300000" placeholder="Number nft gifts">
-            </div>
-
-            <button id="parseBtn" class="btn" onclick="parseGift()">
-                <span>Search</span>
+            
+            <button id="search-button">
+                <span class="search-icon">🔍</span> Find NFT
             </button>
         </div>
-
-        <div id="loading" class="loading">
-            <div class="spinner"></div>
-            <p>Searching for gift, please wait...</p>
-        </div>
-
-        <div id="giftList" class="gift-list">
-            <div class="empty-state">
-                <div class="empty-icon">🔍</div>
-                <p>Select a gift model and click "Search"</p>
-            </div>
-        </div>
+        
+        <div id="results-container"></div>
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>
     <script>
-        // Gift models without numbers and special characters
-        const giftModels = [
-            "WitchHat", "WinterWreath", "VoodooDoll", "VintageCigar", "TrappedHeart",
-            "ToyBear", "TopHat", "TamaGadget", "SwissWatch", "StarNotepad",
-            "SpyAgaric", "SpicedWine", "SnowMittens", "SnowGlobe", "SleighBell",
-            "SkullFlower", "SignetRing", "SharpTongue", "ScaredCat", "SantaHat",
-            "SakuraFlower", "RecordPlayer", "PreciousPeach", "PlushPepe", "PerfumeBottle",
-            "PartySparkler", "NekoHelmet", "MiniOscar", "MagicPotion", "MadPumpkin",
-            "LunarSnake", "LovePotion", "LoveCandle", "LootBag", "LolPop",
-            "KissedFrog", "JingleBells", "JesterHat", "JellyBunny", "IonGem",
-            "HypnoLollipop", "HomemadeCake", "HexPot", "HangingStar", "GingerCookie",
-            "GenieLamp", "FlyingBroom", "EvilEye", "EternalRose", "ElectricSkull",
-            "DurovsCap", "DiamondRing", "DeskCalendar", "CrystalBall", "CookieHeart",
-            "CandyCane", "BunnyMuffin", "BerryBox", "BDayCandle", "AstralShard",
-            "JackintheBox", "EasterEgg", "BondedRing", "LightSword", "BigYear", 
-            "PetSnake", "SnakeBox", "XmasStoking", "HolidayDrink", "GemSignet", 
-            "RestlessJar", "NailBracelet", "HeroicHelmet", "BowTie"
-        ];
-
-        // A mapping of gift models to their image/animation URLs
-        const giftMedia = {
-            "WitchHat": "https://nft.fragment.com/gift/witchhat-1.webp",
-            "WinterWreath": "https://nft.fragment.com/gift/winterwreath-1.webp",
-            "VoodooDoll": "https://nft.fragment.com/gift/voodoodoll-1.webp",
-            "VintageCigar": "https://nft.fragment.com/gift/vintagecigar-1.webp",
-            "TrappedHeart": "https://nft.fragment.com/gift/trappedheart-1.webp",
-            "ToyBear": "https://nft.fragment.com/gift/toybear-1.webp",
-            "TopHat": "https://nft.fragment.com/gift/tophat-1.webp",
-            "TamaGadget": "https://nft.fragment.com/gift/tamagadget-1.webp",
-            "SwissWatch": "https://nft.fragment.com/gift/swisswatch-1.webp",
-            "StarNotepad": "https://nft.fragment.com/gift/starnotepad-1.webp",
-            "SpyAgaric": "https://nft.fragment.com/gift/spyagaric-1.webp",
-            "SpicedWine": "https://nft.fragment.com/gift/spicedwine-1.webp",
-            "SnowMittens": "https://nft.fragment.com/gift/snowmittens-1.webp",
-            "SnowGlobe": "https://nft.fragment.com/gift/snowglobe-1.webp",
-            "SleighBell": "https://nft.fragment.com/gift/sleighbell-1.webp",
-            "SkullFlower": "https://nft.fragment.com/gift/skullflower-1.webp",
-            "SignetRing": "https://nft.fragment.com/gift/signetring-1.webp",
-            "SharpTongue": "https://nft.fragment.com/gift/sharptongue-1.webp",
-            "ScaredCat": "https://nft.fragment.com/gift/scaredcat-1.webp",
-            "SantaHat": "https://nft.fragment.com/gift/santaHat-1.webp",
-            "SakuraFlower": "https://nft.fragment.com/gift/sakuraflower-1.webp",
-            "RecordPlayer": "https://nft.fragment.com/gift/recordplayer-1.webp",
-            "PreciousPeach": "https://nft.fragment.com/gift/preciouspeach-1.webp",
-            "PlushPepe": "https://nft.fragment.com/gift/plushpepe-1.webp",
-            "PerfumeBottle": "https://nft.fragment.com/gift/perfumebottle-1.webp",
-            "PartySparkler": "https://nft.fragment.com/gift/partysparkler-1.webp",
-            "NekoHelmet": "https://nft.fragment.com/gift/nekohelmet-1.webp",
-            "MiniOscar": "https://nft.fragment.com/gift/minioscar-1.webp",
-            "MagicPotion": "https://nft.fragment.com/gift/magicpotion-1.webp",
-            "MadPumpkin": "https://nft.fragment.com/gift/madpumpkin-1.webp",
-            "LunarSnake": "https://nft.fragment.com/gift/lunarsnake-1.webp",
-            "LovePotion": "https://nft.fragment.com/gift/lovepotion-1.webp",
-            "LoveCandle": "https://nft.fragment.com/gift/lovecandle-1.webp",
-            "LootBag": "https://nft.fragment.com/gift/lootbag-1.webp",
-            "LolPop": "https://nft.fragment.com/gift/lolPop-1.webp",
-            "KissedFrog": "https://nft.fragment.com/gift/kissedfrog-1.webp",
-            "JingleBells": "https://nft.fragment.com/gift/jinglebells-1.webp",
-            "JesterHat": "https://nft.fragment.com/gift/jesterHat-1.webp",
-            "JellyBunny": "https://nft.fragment.com/gift/jellybunny-1.webp",
-            "IonGem": "https://nft.fragment.com/gift/iongem-1.webp",
-            "HypnoLollipop": "https://nft.fragment.com/gift/hypnoLollipop-1.webp",
-            "HomemadeCake": "https://nft.fragment.com/gift/homemadecake-1.webp",
-            "HexPot": "https://nft.fragment.com/gift/hexpot-1.webp",
-            "HangingStar": "https://nft.fragment.com/gift/hangingstar-1.webp",
-            "GingerCookie": "https://nft.fragment.com/gift/gingercookie-1.webp",
-            "GenieLamp": "https://nft.fragment.com/gift/genieLamp-1.webp",
-            "FlyingBroom": "https://nft.fragment.com/gift/flyingbroom-1.webp",
-            "EvilEye": "https://nft.fragment.com/gift/evilEye-1.webp",
-            "EternalRose": "https://nft.fragment.com/gift/eternalRose-1.webp",
-            "ElectricSkull": "https://nft.fragment.com/gift/electricskull-1.webp",
-            "DurovsCap": "https://nft.fragment.com/gift/durovsCap-1.webp",
-            "DiamondRing": "https://nft.fragment.com/gift/diamondring-1.webp",
-            "DeskCalendar": "https://nft.fragment.com/gift/deskcalendar-1.webp",
-            "CrystalBall": "https://nft.fragment.com/gift/crystalball-1.webp",
-            "CookieHeart": "https://nft.fragment.com/gift/cookieheart-1.webp",
-            "CandyCane": "https://nft.fragment.com/gift/candyCane-1.webp",
-            "BunnyMuffin": "https://nft.fragment.com/gift/bunnyMuffin-1.webp",
-            "BerryBox": "https://nft.fragment.com/gift/berryBox-1.webp",
-            "BDayCandle": "https://nft.fragment.com/gift/bDayCandle-1.webp",
-            "AstralShard": "https://nft.fragment.com/gift/astralShard-1.webp",
-            "JackintheBox": "https://nft.fragment.com/gift/jackintheBox-1.webp",
-            "EasterEgg": "https://nft.fragment.com/gift/easterEgg-1.webp",
-            "BondedRing": "https://nft.fragment.com/gift/bondedRing-1.webp",
-            "LightSword": "https://nft.fragment.com/gift/lightSword-1.webp",
-            "BigYear": "https://nft.fragment.com/gift/bigYear-1.webp",
-            "PetSnake": "https://nft.fragment.com/gift/petSnake-1.webp",
-            "SnakeBox": "https://nft.fragment.com/gift/snakeBox-1.webp",
-            "XmasStoking": "https://nft.fragment.com/gift/xmasStoking-1.webp",
-            "HolidayDrink": "https://nft.fragment.com/gift/holidayDrink-1.webp",
-            "GemSignet": "https://nft.fragment.com/gift/gemSignet-1.webp",
-            "RestlessJar": "https://nft.fragment.com/gift/restlessJar-1.webp",
-            "NailBracelet": "https://nft.fragment.com/gift/nailBracelet-1.webp",
-            "HeroicHelmet": "https://nft.fragment.com/gift/heroicHelmet-1.webp",
-            "BowTie": "https://nft.fragment.com/gift/bowTie-1.webp"
-        };
-
-        // Fill the select dropdown with gift models
-        const giftModelSelect = document.getElementById('giftModel');
-        giftModels.forEach(model => {
-            const option = document.createElement('option');
-            option.value = model;
-            option.textContent = model;
-            giftModelSelect.appendChild(option);
+        // Create floating particles
+        function createParticles() {
+            const particlesContainer = document.getElementById('particles');
+            const particleCount = window.innerWidth < 768 ? 20 : 40;
+            
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.classList.add('particle');
+                
+                // Random size between 2px and 6px
+                const size = Math.random() * 4 + 2;
+                particle.style.width = `${size}px`;
+                particle.style.height = `${size}px`;
+                
+                // Random position
+                particle.style.left = `${Math.random() * 100}vw`;
+                particle.style.top = `${Math.random() * 100}vh`;
+                
+                // Random animation duration between 20s and 40s
+                const duration = Math.random() * 20 + 20;
+                particle.style.animationDuration = `${duration}s`;
+                
+                // Random delay
+                particle.style.animationDelay = `${Math.random() * 20}s`;
+                
+                // Random opacity
+                particle.style.opacity = Math.random() * 0.5 + 0.1;
+                
+                particlesContainer.appendChild(particle);
+            }
+        }
+        
+        // Initialize particles when DOM is loaded
+        document.addEventListener('DOMContentLoaded', createParticles);
+        
+        // Toggle between search types
+        document.getElementById('search-by-nft').addEventListener('click', function() {
+            this.classList.add('active');
+            document.getElementById('search-by-backdrop').classList.remove('active');
+            document.getElementById('nft-search-section').style.display = 'block';
+            document.getElementById('backdrop-search-section').style.display = 'none';
         });
-
-        // Parse a single gift
-        async function parseGift() {
-            const giftModel = document.getElementById('giftModel').value;
-            const giftNumber = document.getElementById('giftNumber').value;
-
-            if (!giftModel) {
-                alert('Please select a gift model first');
+        
+        document.getElementById('search-by-backdrop').addEventListener('click', function() {
+            this.classList.add('active');
+            document.getElementById('search-by-nft').classList.remove('active');
+            document.getElementById('nft-search-section').style.display = 'none';
+            document.getElementById('backdrop-search-section').style.display = 'block';
+        });
+        
+        document.getElementById('search-button').addEventListener('click', async function() {
+            const searchType = document.querySelector('.search-type-btn.active').id;
+            const resultsContainer = document.getElementById('results-container');
+            
+            if (searchType === 'search-by-nft') {
+                await searchByNFT();
+            } else {
+                await searchByBackdrop();
+            }
+        });
+        
+        async function searchByNFT() {
+            const selectedGift = document.getElementById('gift-select').value;
+            const giftNumber = document.getElementById('gift-number').value;
+            const resultsContainer = document.getElementById('results-container');
+            
+            if (!selectedGift || !giftNumber) {
+                resultsContainer.innerHTML = `
+                    <div class="not-found animate__animated animate__fadeIn">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+                        </svg>
+                        <p>Please select a gift and enter a number</p>
+                    </div>
+                `;
                 return;
             }
-
-            if (!giftNumber) {
-                alert('Please enter a gift number');
-                return;
-            }
-
-            // Show loading animation
-            document.getElementById('loading').style.display = 'block';
-            document.getElementById('giftList').innerHTML = ''; // Clear previous results
-
-            // Simulate loading time
-            setTimeout(async () => {
-                // Hide loading animation
-                document.getElementById('loading').style.display = 'none';
-
-                // Perform actual parsing
-                await parseSingleGift(giftModel, giftNumber);
-            }, 1000); // 1 seconds
-        }
-
-        // Parse single gift (core function)
-        async function parseSingleGift(giftModel, giftNumber) {
-            const url = `https://t.me/nft/${giftModel}-${giftNumber}`;
-
+            
+            // Show loading state with animation
+            resultsContainer.innerHTML = `
+                <div class="loading-container animate__animated animate__fadeIn">
+                    <div>
+                        <span class="loading"></span>
+                        <span class="loading-text">Searching for NFT...</span>
+                    </div>
+                </div>
+            `;
+            
             try {
-                // Use CORS proxy
-                const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
-                const response = await fetch(proxyUrl);
-                const data = await response.json();
-
-                if (data.contents) {
-                    const parser = new DOMParser();
-                    const htmlDoc = parser.parseFromString(data.contents, 'text/html');
-
-                    // Check if gift is valid (has owner)
-                    const ownerTag = htmlDoc.querySelector('a[href^="https://t.me/"]');
-                    const isValid = ownerTag !== null;
-
-                    if (isValid) {
-                        displayGiftCard(htmlDoc, url, giftNumber, giftModel);
-                    } else {
-                        displayNotFound();
-                    }
-
-                } else {
-                    displayNotFound();
-                }
+                // Fetch NFT data
+                const nftData = await fetchNFTData(selectedGift, giftNumber);
+                const giftUrl = `https://t.me/nft/${selectedGift}-${giftNumber}`;
+                
+                // Create result card
+                const imageUrl = `https://nft.fragment.com/gift/${selectedGift}-${giftNumber}.webp`;
+                
+                resultsContainer.innerHTML = `
+                    <div class="result-card">
+                        <div class="gift-image-container">
+                            <img src="${imageUrl}" class="gift-image" onerror="this.src='data:image/svg+xml;charset=UTF-8,%3Csvg xmlns=\"http://www.w3.org/2000/svg\" width=\"200\" height=\"200\" viewBox=\"0 0 200 200\"%3E%3Crect fill=\"%23161626\" width=\"200\" height=\"200\"/%3E%3Ctext fill=\"%236c5ce7\" font-family=\"Poppins,sans-serif\" font-size=\"16\" dy=\".3em\" text-anchor=\"middle\" x=\"100\" y=\"100\"%3EImage not found%3C/text%3E%3C/svg%3E'">
+                        </div>
+                        <div class="gift-info">
+                            <div>
+                                <span class="gift-name">${nftData.model || selectedGift} #${giftNumber}</span>
+                                <span class="nft-badge"></span>
+                            </div>
+                            
+                            <div class="gift-details">
+                                <div class="detail-item">
+                                    <div class="detail-label">Owned by</div>
+                                    <div class="detail-value">${nftData.owner ? nftData.owner : 'Unknown'}</div>
+                                </div>
+                                <div class="detail-item">
+                                    <div class="detail-label">Symbol</div>
+                                    <div class="detail-value">${nftData.symbol || 'N/A'}</div>
+                                </div>
+                                <div class="detail-item">
+                                    <div class="detail-label">Backdrop</div>
+                                    <div class="detail-value">${nftData.backdrop || 'Standard'}</div>
+                                </div>
+                            </div>
+                            
+                            <a href="${giftUrl}" target="_blank" class="view-button">
+                                View on Telegram
+                            </a>
+                        </div>
+                    </div>
+                `;
             } catch (error) {
-                console.error('Error parsing gift #${giftNumber}:', error);
-                displayNotFound();
+                console.error('Error:', error);
+                                resultsContainer.innerHTML = `
+                    <div class="not-found animate__animated animate__fadeIn">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+                        </svg>
+                        <p>NFT not found or error occurred</p>
+                        <p class="text-secondary">${error.message}</p>
+                    </div>
+                `;
             }
         }
-
-        // Display gift card with animation
-        function displayGiftCard(doc, giftUrl, giftNumber, giftModel) {
-            // Extract data
-            const title = doc.querySelector('meta[property="og:title"]')?.content || `${giftModel} #${giftNumber}`;
-
-            // Owner info
-            const ownerTag = doc.querySelector('a[href^="https://t.me/"]');
-            const owner = {
-                username: ownerTag?.querySelector('span')?.textContent || 'Unknown',
-                url: ownerTag?.href || '#'
-            };
-
-            // Get media URL (either image or animation)
-            const mediaUrl = giftMedia[giftModel];
-
-            // Create gift card
-            const giftCard = document.createElement('div');
-            giftCard.className = 'gift-card';
-
-            let cardHtml = `
-        <div class="gift-content">
-            <div class="gift-model">${giftModel}</div>
-            <h3 class="gift-title">${title}</h3>
-
-            <!-- Display the media (either image or animation) -->
-            <img src="${mediaUrl}" alt="${giftModel} Image" class="gift-animation">
-    `;
-
-            if (owner.url !== '#') {
-                cardHtml += `
-            <a href="${owner.url}" class="gift-owner" target="_blank">
-                <div class="owner-avatar">${owner.username.charAt(0).toUpperCase()}</div>
-                ${owner.username}
-            </a>
-        `;
+        
+        async function searchByBackdrop() {
+            const selectedBackdrop = document.getElementById('backdrop-select').value;
+            const resultsContainer = document.getElementById('results-container');
+            
+            if (!selectedBackdrop) {
+                resultsContainer.innerHTML = `
+                    <div class="not-found animate__animated animate__fadeIn">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+                        </svg>
+                        <p>Please select a backdrop color</p>
+                    </div>
+                `;
+                return;
             }
-
-            cardHtml += `<div class="gift-properties">`;
-
-            // Extract characteristics
-            const characteristics = [];
-            const table = doc.querySelector('table.tgme_gift_table');
-            if (table) {
-                table.querySelectorAll('tr').forEach(row => {
-                    const cols = row.querySelectorAll('th, td');
-                    if (cols.length === 2) {
-                        const key = cols[0].textContent.trim();
-                        const value = cols[1].textContent.trim();
-                        characteristics.push({
-                            name: key,
-                            value: value
+            
+            // Show loading state with animation
+            resultsContainer.innerHTML = `
+                <div class="loading-container animate__animated animate__fadeIn">
+                    <div>
+                        <span class="loading"></span>
+                        <span class="loading-text">Searching NFTs with ${selectedBackdrop} backdrop...</span>
+                    </div>
+                </div>
+            `;
+            
+            try {
+                // Fetch NFTs by backdrop color
+                const nfts = await fetchNFTsByBackdrop(selectedBackdrop);
+                
+                if (nfts.length === 0) {
+                    resultsContainer.innerHTML = `
+                        <div class="not-found animate__animated animate__fadeIn">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <p>No NFTs found with ${selectedBackdrop} backdrop</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                // Display all found NFTs
+                let resultsHTML = '';
+                
+                nfts.forEach(nft => {
+                    const [giftType, giftNumber] = nft.name.split('-');
+                    const giftUrl = `https://t.me/nft/${giftType}-${giftNumber}`;
+                    const imageUrl = `https://nft.fragment.com/gift/${giftType}-${giftNumber}.webp`;
+                    
+                    resultsHTML += `
+                        <div class="result-card">
+                            <div class="gift-image-container">
+                                <img src="${imageUrl}" class="gift-image" onerror="this.src='data:image/svg+xml;charset=UTF-8,%3Csvg xmlns=\"http://www.w3.org/2000/svg\" width=\"200\" height=\"200\" viewBox=\"0 0 200 200\"%3E%3Crect fill=\"%23161626\" width=\"200\" height=\"200\"/%3E%3Ctext fill=\"%236c5ce7\" font-family=\"Poppins,sans-serif\" font-size=\"16\" dy=\".3em\" text-anchor=\"middle\" x=\"100\" y=\"100\"%3EImage not found%3C/text%3E%3C/svg%3E'">
+                            </div>
+                            <div class="gift-info">
+                                <div>
+                                    <span class="gift-name">${giftType} #${giftNumber}</span>
+                                    <span class="nft-badge"></span>
+                                </div>
+                                
+                                <div class="gift-details">
+                                    <div class="detail-item">
+                                        <div class="detail-label">Backdrop</div>
+                                        <div class="detail-value">${nft.backdrop}</div>
+                                    </div>
+                                    <div class="detail-item">
+                                        <div class="detail-label">Symbol</div>
+                                        <div class="detail-value">${nft.symbol || 'N/A'}</div>
+                                    </div>
+                                    <div class="detail-item">
+                                        <div class="detail-label">Owned by</div>
+                                        <div class="detail-value">${nft.owner || 'Unknown'}</div>
+                                    </div>
+                                </div>
+                                
+                                <a href="${giftUrl}" target="_blank" class="view-button">
+                                    View on Telegram
+                                </a>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                resultsContainer.innerHTML = resultsHTML;
+            } catch (error) {
+                console.error('Error:', error);
+                resultsContainer.innerHTML = `
+                    <div class="not-found animate__animated animate__fadeIn">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+                        </svg>
+                        <p>Error searching NFTs</p>
+                        <p class="text-secondary">${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+        
+        // Mock API functions - replace with actual API calls
+        async function fetchNFTData(giftType, giftNumber) {
+            // In a real implementation, this would call an API endpoint
+            // For demo purposes, we'll return mock data
+            return new Promise((resolve) => {
+                setTimeout(() => {
+                    const backdrops = [
+                        'Electric Purple', 'Lavender', 'Cyberpunk', 'Electric Indigo', 
+                        'Neon Blue', 'Sapphire', 'Aquamarine', 'Emerald',
+                        'Satin Gold', 'Amber', 'Coral Red', 'Raspberry'
+                    ];
+                    
+                    const mockData = {
+                        model: giftType,
+                        symbol: 'GFT',
+                        backdrop: backdrops[Math.floor(Math.random() * backdrops.length)],
+                        owner: 'user' + Math.floor(Math.random() * 10000)
+                    };
+                    
+                    resolve(mockData);
+                }, 800);
+            });
+        }
+        
+        async function fetchNFTsByBackdrop(backdropColor) {
+            // In a real implementation, this would call an API endpoint
+            // For demo purposes, we'll return mock data
+            return new Promise((resolve) => {
+                setTimeout(() => {
+                    const gifts = [
+                        'EternalRose', 'AstralShard', 'BDayCandle', 'BerryBox',
+                        'BondedRing', 'BowTie', 'CrystalBall', 'DiamondRing'
+                    ];
+                    
+                    const count = Math.floor(Math.random() * 5) + 1;
+                    const results = [];
+                    
+                    for (let i = 0; i < count; i++) {
+                        const giftType = gifts[Math.floor(Math.random() * gifts.length)];
+                        const giftNumber = Math.floor(Math.random() * 1000) + 1;
+                        
+                        results.push({
+                            name: `${giftType}-${giftNumber}`,
+                            symbol: 'GFT',
+                            backdrop: backdropColor,
+                            owner: 'user' + Math.floor(Math.random() * 10000)
                         });
                     }
-                });
-            }
-
-            // Add characteristics to the card
-            characteristics.forEach(prop => {
-                cardHtml += `
-            <div class="property">
-                <span class="property-name">${prop.name}</span>
-                <span class="property-value">${prop.value}</span>
-            </div>
-        `;
+                    
+                    resolve(results);
+                }, 1000);
             });
-
-            cardHtml += `
-            </div>
-
-            <div class="gift-actions">
-                <button class="action-btn copy-btn" onclick="navigator.clipboard.writeText('${giftUrl}')">Copy Link</button>
-            </div>
-        </div>
-    `;
-
-            giftCard.innerHTML = cardHtml;
-
-            // Add to the gift list
-            const giftList = document.getElementById('giftList');
-            giftList.innerHTML = ''; // Clear "empty" or "not found" message
-            giftList.appendChild(giftCard);
-        }
-
-        function displayNotFound() {
-            const giftList = document.getElementById('giftList');
-            giftList.innerHTML = `
-        <div class="not-found">
-            <div class="empty-icon">😞</div>
-            <p>Gift not found</p>
-        </div>
-    `;
         }
     </script>
 </body>
