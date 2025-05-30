@@ -818,11 +818,14 @@
             `;
             
             try {
-                // Fetch NFT data
-                const nftData = await fetchNFTData(selectedGift, giftNumber);
-                const giftUrl = `https://t.me/nft/${selectedGift}-${giftNumber}`;
+                // Fetch NFT data from Telegram
+                const nftData = await parseSingleGift(selectedGift, giftNumber);
                 
-                // Create result card
+                if (!nftData.isValid) {
+                    throw new Error('NFT not found or invalid');
+                }
+                
+                const giftUrl = `https://t.me/nft/${selectedGift}-${giftNumber}`;
                 const imageUrl = `https://nft.fragment.com/gift/${selectedGift}-${giftNumber}.webp`;
                 
                 resultsContainer.innerHTML = `
@@ -839,7 +842,7 @@
                             <div class="gift-details">
                                 <div class="detail-item">
                                     <div class="detail-label">Owned by</div>
-                                    <div class="detail-value">${nftData.owner ? nftData.owner : 'Unknown'}</div>
+                                    <div class="detail-value">${nftData.owner || 'Unknown'}</div>
                                 </div>
                                 <div class="detail-item">
                                     <div class="detail-label">Symbol</div>
@@ -857,15 +860,14 @@
                         </div>
                     </div>
                 `;
-            } catch (error) {
-                console.error('Error:', error);
-                                resultsContainer.innerHTML = `
+                        } catch (error) {
+                resultsContainer.innerHTML = `
                     <div class="not-found animate__animated animate__fadeIn">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
                         <p>NFT not found or error occurred</p>
-                        <p class="text-secondary">${error.message}</p>
+                        <p class="detail-value" style="margin-top: 1rem;">${error.message}</p>
                     </div>
                 `;
             }
@@ -898,28 +900,19 @@
             `;
             
             try {
-                // Fetch NFTs by backdrop color
-                const nfts = await fetchNFTsByBackdrop(selectedBackdrop);
+                // Fetch NFTs with the selected backdrop color
+                const nfts = await parseNFTsByBackdrop(selectedBackdrop);
                 
-                if (nfts.length === 0) {
-                    resultsContainer.innerHTML = `
-                        <div class="not-found animate__animated animate__fadeIn">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                            <p>No NFTs found with ${selectedBackdrop} backdrop</p>
-                        </div>
-                    `;
-                    return;
+                if (!nfts || nfts.length === 0) {
+                    throw new Error(`No NFTs found with ${selectedBackdrop} backdrop`);
                 }
                 
-                // Display all found NFTs
+                // Display results
                 let resultsHTML = '';
                 
-                nfts.forEach(nft => {
-                    const [giftType, giftNumber] = nft.name.split('-');
-                    const giftUrl = `https://t.me/nft/${giftType}-${giftNumber}`;
-                    const imageUrl = `https://nft.fragment.com/gift/${giftType}-${giftNumber}.webp`;
+                nfts.slice(0, 5).forEach(nft => { // Limit to 5 results for demo
+                    const giftUrl = `https://t.me/nft/${nft.symbol}-${nft.number}`;
+                    const imageUrl = `https://nft.fragment.com/gift/${nft.symbol}-${nft.number}.webp`;
                     
                     resultsHTML += `
                         <div class="result-card">
@@ -928,22 +921,22 @@
                             </div>
                             <div class="gift-info">
                                 <div>
-                                    <span class="gift-name">${giftType} #${giftNumber}</span>
+                                    <span class="gift-name">${nft.model || nft.symbol} #${nft.number}</span>
                                     <span class="nft-badge"></span>
                                 </div>
                                 
                                 <div class="gift-details">
                                     <div class="detail-item">
-                                        <div class="detail-label">Backdrop</div>
-                                        <div class="detail-value">${nft.backdrop}</div>
+                                        <div class="detail-label">Owned by</div>
+                                        <div class="detail-value">${nft.owner || 'Unknown'}</div>
                                     </div>
                                     <div class="detail-item">
                                         <div class="detail-label">Symbol</div>
                                         <div class="detail-value">${nft.symbol || 'N/A'}</div>
                                     </div>
                                     <div class="detail-item">
-                                        <div class="detail-label">Owned by</div>
-                                        <div class="detail-value">${nft.owner || 'Unknown'}</div>
+                                        <div class="detail-label">Backdrop</div>
+                                        <div class="detail-value">${nft.backdrop || 'Standard'}</div>
                                     </div>
                                 </div>
                                 
@@ -956,72 +949,67 @@
                 });
                 
                 resultsContainer.innerHTML = resultsHTML;
+                
             } catch (error) {
-                console.error('Error:', error);
                 resultsContainer.innerHTML = `
                     <div class="not-found animate__animated animate__fadeIn">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
-                        <p>Error searching NFTs</p>
-                        <p class="text-secondary">${error.message}</p>
+                        <p>${error.message}</p>
                     </div>
                 `;
             }
         }
         
-        // Mock API functions - replace with actual API calls
-        async function fetchNFTData(giftType, giftNumber) {
-            // In a real implementation, this would call an API endpoint
-            // For demo purposes, we'll return mock data
+        // Mock function to simulate fetching NFT data by gift and number
+        async function parseSingleGift(gift, number) {
+            // In a real implementation, this would make an API call to Telegram's NFT service
             return new Promise((resolve) => {
                 setTimeout(() => {
-                    const backdrops = [
-                        'Electric Purple', 'Lavender', 'Cyberpunk', 'Electric Indigo', 
-                        'Neon Blue', 'Sapphire', 'Aquamarine', 'Emerald',
-                        'Satin Gold', 'Amber', 'Coral Red', 'Raspberry'
-                    ];
-                    
-                    const mockData = {
-                        model: giftType,
-                        symbol: 'GFT',
-                        backdrop: backdrops[Math.floor(Math.random() * backdrops.length)],
-                        owner: 'user' + Math.floor(Math.random() * 10000)
-                    };
-                    
-                    resolve(mockData);
-                }, 800);
+                    resolve({
+                        isValid: true,
+                        model: gift,
+                        symbol: gift,
+                        number: number,
+                        owner: "Anonymous",
+                        backdrop: getRandomBackdropColor()
+                    });
+                }, 1000);
             });
         }
         
-        async function fetchNFTsByBackdrop(backdropColor) {
-            // In a real implementation, this would call an API endpoint
-            // For demo purposes, we'll return mock data
+        // Mock function to simulate fetching NFTs by backdrop color
+        async function parseNFTsByBackdrop(backdropColor) {
+            // In a real implementation, this would make an API call to Telegram's NFT service
             return new Promise((resolve) => {
                 setTimeout(() => {
-                    const gifts = [
-                        'EternalRose', 'AstralShard', 'BDayCandle', 'BerryBox',
-                        'BondedRing', 'BowTie', 'CrystalBall', 'DiamondRing'
-                    ];
+                    const mockNFTs = [];
+                    const gifts = ["EternalRose", "AstralShard", "DiamondRing", "GenieLamp", "SnowGlobe"];
                     
-                    const count = Math.floor(Math.random() * 5) + 1;
-                    const results = [];
-                    
-                    for (let i = 0; i < count; i++) {
-                        const giftType = gifts[Math.floor(Math.random() * gifts.length)];
-                        const giftNumber = Math.floor(Math.random() * 1000) + 1;
-                        
-                        results.push({
-                            name: `${giftType}-${giftNumber}`,
-                            symbol: 'GFT',
-                            backdrop: backdropColor,
-                            owner: 'user' + Math.floor(Math.random() * 10000)
+                    for (let i = 0; i < 3; i++) {
+                        mockNFTs.push({
+                            isValid: true,
+                            model: gifts[Math.floor(Math.random() * gifts.length)],
+                            symbol: gifts[Math.floor(Math.random() * gifts.length)],
+                            number: Math.floor(Math.random() * 1000) + 1,
+                            owner: `User${Math.floor(Math.random() * 10000)}`,
+                            backdrop: backdropColor
                         });
                     }
                     
-                    resolve(results);
-                }, 1000);
+                    resolve(mockNFTs);
+                }, 1500);
             });
+        }
+        
+        // Helper function to get a random backdrop color for demo purposes
+        function getRandomBackdropColor() {
+            const colors = [
+                "Black", "Electric Purple", "Lavender", "Cyberpunk", "Electric Indigo",
+                "Neon Blue", "Navy Blue", "Sapphire", "Sky Blue", "Azure Blue"
+            ];
+            return colors[Math.floor(Math.random() * colors.length)];
         }
     </script>
 </body>
